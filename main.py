@@ -4,35 +4,36 @@ import requests
 
 
 def create_query(languages, min_stars=50000):
-    query = f"Stars: > {min_stars} "
+    query = f"stars:>{min_stars} "
 
-    for lan in languages:
-        query += f"languages: {lan}"
+    for language in languages:
+        query += f"language: {language} "
 
         return query
 
 
-def github_repo_api_stars(language, sort="stars", orders="desc"):
+def github_repo_api_stars(languages, sort="stars", order="desc"):
     api = "https://api.github.com/search/repositories"
 
-    query = create_query(language)
-    param = {"q": query, "sort": sort, "order": orders}
-    response = requests.get(api, params=param)
+    query = create_query(languages)
+    parameters = {"q": query, "sort": sort, "order": order}
+    response = requests.get(api, params=parameters)
     status_code = response.status_code
     if status_code != 200:
         raise RuntimeError(f"An error occurred. Status code was: {status_code}")
     else:
         response_json = response.json()
-        return response_json["items"]
+        records = response_json["items"]
+        return records
 
 
 if __name__ == "__main__":
-    languagess = ["python", "javascript", "ruby"]
-    results = github_repo_api_stars(languagess)
+    languages = ["python", "javascript", "ruby"]
+    results = github_repo_api_stars(languages)
 
     for result in results:
-        language_s = result["language"]
+        language = result["language"]
         stars = result["stargazers_count"]
         name = result["name"]
 
-        print(f"-> {name} is a {language_s} repo with {stars} Stars.")
+        print(f"-> {name} is a {language} repo with {stars} stars.")
